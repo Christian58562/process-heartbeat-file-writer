@@ -29,3 +29,10 @@ The atomicity guarantee depends on the temp file and destination living on the s
 ## Scheduling model
 
 The clock is a constructor argument. In production pass `time.monotonic` (the default). In tests pass a fake that returns deterministic values. `check()` writes a beat only when the clock has reached the next due time and returns the payload when a beat was written, or `None` otherwise, so it is safe to call in a tight loop. `beat_now()` writes unconditionally, returns the payload, and resets the schedule.
+
+## Design notes
+
+The window stores values eagerly rather than keeping running aggregates. Running
+sums drift with floating point over long streams, and recomputing from a small
+buffer is cheap enough that the drift is not worth the speed.
+
